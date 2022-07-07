@@ -34,6 +34,27 @@
             "cStandard": "gnu99",
             "cppStandard": "gnu++98",
             "intelliSenseMode": "windows-gcc-x64"
+        },
+        {
+            "name": "AVR-GCC",
+            "includePath": [
+                "C:/Tools/Scoop/apps/avr-gcc/current/avr/include/**",
+                "C:/Tools/Scoop/apps/msys2/current/mingw64/avr/include/**",
+                "C:/Tools/Scoop/apps/msys2/current/mingw64/lib/gcc/avr/8.5.0/include/**",
+                "C:/Tools/Scoop/apps/msys2/current/mingw64/lib/gcc/avr/8.5.0/include-fixed/**",
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "__AVR__"
+            ],
+            "windowsSdkVersion": "10.0.19041.0",
+            "compilerPath": "C:\\Tools\\Scoop\\apps\\avr-gcc\\current\\bin\\avr-gcc.exe",
+            "cStandard": "gnu99",
+            "cppStandard": "gnu++98",
+            "intelliSenseMode": "linux-gcc-arm"
         }
     ],
     "version": 4

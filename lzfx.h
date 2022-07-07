@@ -49,6 +49,16 @@ extern "C" {
 #define LZFX_VERSION_MINOR 1
 #define LZFX_VERSION_STRING "0.1"
 
+#ifdef __AVR__
+typedef uint8_t u8;
+typedef int_fast8_t int_t;
+typedef uint_fast8_t uint_t;
+#else
+typedef unsigned char u8;
+typedef int int_t;
+typedef uint_t uint_t;
+#endif
+
 /* Hashtable size (2**LZFX_HLOG entries) */
 #ifndef LZFX_HLOG
 #    define LZFX_HLOG 16
@@ -68,7 +78,7 @@ extern "C" {
     olen contains the compressed size in bytes.  On failure, a negative
     value is returned and olen is not modified.
 */
-int lzfx_compress(const void* ibuf, unsigned int ilen, void* obuf, unsigned int* olen);
+int_t lzfx_compress(const void* ibuf, uint_t ilen, void* obuf, uint_t* olen);
 
 /*  Buffer-to-buffer decompression.
 
@@ -87,7 +97,7 @@ int lzfx_compress(const void* ibuf, unsigned int ilen, void* obuf, unsigned int*
     stream and is consequently very fast.  Argument obuf may be NULL in
     this case only.
 */
-int lzfx_decompress(const void* ibuf, unsigned int ilen, void* obuf, unsigned int* olen);
+int_t lzfx_decompress(const void* ibuf, uint_t ilen, void* obuf, uint_t* olen);
 
 #ifdef __cplusplus
 } /* extern "C" */
