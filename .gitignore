@@ -1,0 +1,14 @@
+*.log
+*.status
+*~
+*.elf
+*.hex
+*.eep
+*.lss
+*.map
+*.sym
+*.o
+
+/autom4te.cache
+/Makefile
+/configure

@@ -1,0 +1,109 @@
+VERSION = 0.1
+
+SRC = lzfx.c
+
+MCU = avr5
+TARGET = liblzfx
+FORMAT = ihex
+
+CC = avr-gcc
+AR = avr-ar
+RANLIB = avr-ranlib
+OBJCOPY = avr-objcopy
+OBJDUMP = avr-objdump
+SIZE = avr-size
+NM = avr-nm
+
+CSTANDARD = -std=gnu99
+CPPFLAGS = -I.
+CFLAGS = -Os
+CFLAGS += -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
+CFLAGS += -Wall -Wstrict-prototypes
+CFLAGS += $(CSTANDARD)
+LDFLAGS = -Wl,-Map=$(TARGET).map,--cref
+
+TESTDIR = tests
+TESTFILES = $(TESTDIR)/empty.test \
+			$(TESTDIR)/random.test
+
+OBJ = $(SRC:.c=.o)
+
+GENDEPFLAGS = -MD -MP -MF .dep/$(@F).d
+ALL_CFLAGS = -mmcu=$(MCU) -I. $(CFLAGS) $(GENDEPFLAGS)
+
+HEXSIZE = $(SIZE) --target=$(FORMAT) $(TARGET).hex
+ELFSIZE = $(SIZE) -A $(TARGET).elf
+
+all: sizebefore build sizeafter
+
+build: elf hex eep lss sym
+
+elf: $(TARGET).elf
+hex: $(TARGET).hex
+eep: $(TARGET).eep
+lss: $(TARGET).lss
+sym: $(TARGET).sym
+
+MSG_SIZE_BEFORE = Size before:
+MSG_SIZE_AFTER = Size after:
+sizebefore:
+	@if test -f $(TARGET).elf; then echo; echo $(MSG_SIZE_BEFORE); $(ELFSIZE); echo; fi
+
+sizeafter:
+	@if test -f $(TARGET).elf; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); echo; fi
+
+clean:
+	-rm -f *.o *.a *.elf *.eep *.hex *.lss *.sym tests/test
+
+lzfx.o: lzfx.c lzfx.h
+	$(CC) $(CFLAGS) lzfx.c -c
+
+COFFCONVERT=$(OBJCOPY) --debugging \
+--change-section-address .data-0x800000 \
+--change-section-address .bss-0x800000 \
+--change-section-address .noinit-0x800000 \
+--change-section-address .eeprom-0x810000
+
+coff: $(TARGET).elf
+	@echo
+	$(COFFCONVERT) -O coff-avr $< $(TARGET).cof
+
+
+extcoff: $(TARGET).elf
+	@echo
+	$(COFFCONVERT) -O coff-ext-avr $< $(TARGET).cof
+
+# Create final output files (.hex, .eep) from ELF output file.
+%.hex: %.elf
+	@echo
+	$(OBJCOPY) -O $(FORMAT) -R .eeprom $< $@
+
+%.eep: %.elf
+	@echo
+	-$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
+	--change-section-lma .eeprom=0 -O $(FORMAT) $< $@
+
+# Create extended listing file from ELF output file.
+%.lss: %.elf
+	@echo
+	$(OBJDUMP) -h -S $< > $@
+
+# Create a symbol table from ELF output file.
+%.sym: %.elf
+	@echo
+	$(NM) -n $< > $@
+
+.SECONDARY : $(TARGET).elf
+.PRECIOUS : $(OBJ)
+%.elf: $(OBJ)
+	@echo
+	$(CC) $(ALL_CFLAGS) $^ --output $@ $(LDFLAGS)
+
+test: tests/test.c
+	$(CC) $(ALL_CFLAGS) $(TESTDIR)/test.c lzfx.c -llzfx -o $(TESTDIR)/test
+
+check: test
+	dd if=/dev/zero of=$(TESTDIR)/empty.test bs=1M count=4 > /dev/null 2>&1
+	dd if=/dev/urandom of=$(TESTDIR)/random.test bs=1M count=1 > /dev/null 2>&1
+	$(TESTDIR)/test $(TESTDIR)/*.test
+	-rm -f $(TESTFILES)

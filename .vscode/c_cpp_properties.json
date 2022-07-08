@@ -1,0 +1,60 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "WIN32"
+            ],
+            "windowsSdkVersion": "10.0.19041.0",
+            "compilerPath": "C:/Tools/MicrosoftVisualStudio/2022/Community/VC/Tools/MSVC/14.32.31326/bin/Hostx64/x64/cl.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-msvc-x64"
+        },
+        {
+            "name": "MINGW",
+            "includePath": [
+                "C:/Tools/Scoop/apps/msys2/current/mingw64/include/**",
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "WIN32"
+            ],
+            "windowsSdkVersion": "10.0.19041.0",
+            "compilerPath": "C:/Tools/Scoop/apps/msys2/current/mingw64/bin/gcc.exe",
+            "cStandard": "gnu99",
+            "cppStandard": "gnu++98",
+            "intelliSenseMode": "windows-gcc-x64"
+        },
+        {
+            "name": "AVR-GCC",
+            "includePath": [
+                "C:/Tools/Scoop/apps/msys2/current/mingw64/avr/include/**",
+                "C:/Tools/Scoop/apps/msys2/current/mingw64/lib/gcc/avr/8.5.0/include/**",
+                "C:/Tools/Scoop/apps/msys2/current/mingw64/lib/gcc/avr/8.5.0/include-fixed/**",
+                "${workspaceFolder}/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "__AVR__"
+            ],
+            "windowsSdkVersion": "10.0.19041.0",
+            "compilerPath": "C:/Tools/Scoop/apps/msys2/current/mingw64/bin/avr-gcc.exe",
+            "cStandard": "gnu99",
+            "cppStandard": "gnu++98",
+            "intelliSenseMode": "linux-gcc-arm"
+        }
+    ],
+    "version": 4
+}
