@@ -9,14 +9,12 @@
 
 #define BLOCKSIZE (1024 * 1024)
 
-typedef unsigned char u8;
-
 typedef enum { MODE_COMPRESS, MODE_DECOMPRESS } fx_mode_t;
 
 typedef enum { KIND_FILEHEADER = 0, KIND_COMPRESSED = 1, KIND_UNCOMPRESSED = 2 } fx_kind_t;
 
 typedef struct {
-    int       ifd, ofd;
+    int_t     ifd, ofd;
     fx_mode_t mode;
 } FX_STATE;
 
@@ -39,7 +37,7 @@ static inline int fx_read_bytes(const FX_STATE state, void* buf, const size_t le
     size_t  count = 0;
 
     do {
-        rc = read(state.ifd, ((u8*)buf) + count, len - count);
+        rc = read(state.ifd, ((uint8_t*)buf) + count, len - count);
         count += rc;
     } while (rc > 0 && count < len);
 
@@ -49,7 +47,7 @@ static inline int fx_read_bytes(const FX_STATE state, void* buf, const size_t le
     }
 
     if (count > 0 && count != len) {
-        fprintf(stderr, "Read truncated (%u bytes short)\n", (unsigned int)(len - count));
+        fprintf(stderr, "Read truncated (%u bytes short)\n", (uint_t)(len - count));
         return -1;
     }
     return count;
@@ -68,7 +66,7 @@ static inline int fx_write_bytes(const FX_STATE state, const void* buf, const si
     size_t  count = 0;
 
     do {
-        rc = write(state.ofd, ((u8*)buf) + count, len - count);
+        rc = write(state.ofd, ((uint8_t*)buf) + count, len - count);
         count += rc;
     } while (rc > 0 && count < len);
 
@@ -112,7 +110,7 @@ static inline int fx_read_header(const FX_STATE state, fx_kind_t* kind_in, uint3
     int      rc;
     uint16_t kind;
     uint32_t len;
-    u8       head[10];
+    uint8_t  head[10];
 
     rc = fx_read_bytes(state, head, 10);
     if (rc <= 0) return rc; /* 0 = EOF; <0 = already printed error */
@@ -140,9 +138,9 @@ static inline int fx_read_header(const FX_STATE state, fx_kind_t* kind_in, uint3
      0:     Write success
     <0:     Write error (message printed)
 */
-static inline int fx_write_block(const FX_STATE state, const fx_kind_t kind_in, const uint32_t len, const void* data) {
-    const uint16_t kind   = kind_in;
-    u8             head[] = {'L', 'Z', 'F', 'X', 0, 0, 0, 0, 0, 0};
+static inline int_t fx_write_block(const FX_STATE state, const fx_kind_t kind_in, const uint32_t len, const void* data) {
+    const uint8_t kind   = kind_in;
+    uint8_t       head[] = {'L', 'Z', 'F', 'X', 0, 0, 0, 0, 0, 0};
 
     head[4] = kind >> 8;
     head[5] = kind;
@@ -165,13 +163,13 @@ static inline int fx_write_block(const FX_STATE state, const fx_kind_t kind_in, 
      0:  Success
     <0:  Error (message printed)
 */
-static int fx_decompress_block(const FX_STATE state, const u8* ibuf, const size_t len) {
-    static u8*    obuf;
-    static size_t obuf_len;
+static int fx_decompress_block(const FX_STATE state, const uint8_t* ibuf, const size_t len) {
+    static uint8_t* obuf;
+    static size_t   obuf_len;
 
-    uint32_t     usize;
-    unsigned int usize_real;
-    int          rc;
+    uint32_t usize;
+    uint_t   usize_real;
+    int      rc;
 
     if (len < 4) {
         fprintf(stderr, "Compressed size truncated\n");
@@ -181,7 +179,7 @@ static int fx_decompress_block(const FX_STATE state, const u8* ibuf, const size_
     usize = (ibuf[0] << 24) | (ibuf[1] << 16) | (ibuf[2] << 8) | ibuf[3];
 
     if (usize > obuf_len) {
-        obuf = (u8*)realloc(obuf, usize);
+        obuf = (uint8_t*)realloc(obuf, usize);
         if (obuf == NULL) return -1; /* This leaks but we quit right away */
         obuf_len = usize;
     }
@@ -204,12 +202,12 @@ static int fx_decompress_block(const FX_STATE state, const u8* ibuf, const size_
     return 0;
 }
 
-static inline int mem_resize(u8** buf, size_t* ilen, const size_t olen) {
+static inline int mem_resize(uint8_t** buf, size_t* ilen, const size_t olen) {
     void* tbuf;
     if (olen > *ilen) {
         tbuf = realloc(*buf, olen);
         if (tbuf == NULL) {
-            fprintf(stderr, "Can't allocate memory (%lu bytes)\n", (unsigned long)olen);
+            fprintf(stderr, "Can't allocate memory (%lu bytes)\n", (ulong_t)olen);
             return -1;
         }
         *buf  = tbuf;
@@ -226,12 +224,12 @@ static inline int mem_resize(u8** buf, size_t* ilen, const size_t olen) {
     0:  Success
     <0: Error (message printed)
 */
-static int fx_compress_block(const FX_STATE state, const u8* ibuf, const uint32_t ilen) {
-    static u8*    obuf;
-    static size_t obuf_len;
+static int fx_compress_block(const FX_STATE state, const uint8_t* ibuf, const uint32_t ilen) {
+    static uint8_t* obuf;
+    static size_t   obuf_len;
 
-    unsigned int compressed_len;
-    int          rc;
+    uint_t compressed_len;
+    int    rc;
 
     if (ilen <= 4) {
         rc = fx_write_block(state, KIND_UNCOMPRESSED, ilen, ibuf);
@@ -273,10 +271,10 @@ static int fx_compress_block(const FX_STATE state, const u8* ibuf, const uint32_
     <0: Failure (message printed)
 */
 int fx_create(const FX_STATE state) {
-    unsigned long blockno = 0;
-    ssize_t       rc      = 0;
-    size_t        count   = 0;
-    u8*           ibuf    = (u8*)malloc(BLOCKSIZE);
+    ulong_t  blockno = 0;
+    ssize_t  rc      = 0;
+    size_t   count   = 0;
+    uint8_t* ibuf    = (uint8_t*)malloc(BLOCKSIZE);
 
     do {
         rc    = 0;
@@ -314,12 +312,12 @@ failed:
     <0: Failure (message printed)
 */
 int fx_read(const FX_STATE state) {
-    int       rc;
+    int_t     rc;
     fx_kind_t kind      = 0;
     uint32_t  blocksize = 0;
 
-    static u8*    ibuf;
-    static size_t ilen;
+    static uint8_t* ibuf;
+    static size_t   ilen;
 
     while (1) {
         rc = fx_read_header(state, &kind, &blocksize);
@@ -365,9 +363,10 @@ int fx_read(const FX_STATE state) {
     return 0;
 }
 
+#ifndef __AVR__
 int main(int argc, char* argv[]) {
-    int       rc;
-    int       ifd, ofd;
+    int_t     rc;
+    int_t     ifd, ofd;
     fx_mode_t mode;
     FX_STATE  state;
 
@@ -417,3 +416,4 @@ int main(int argc, char* argv[]) {
 
     return rc ? 1 : 0;
 }
+#endif /* __AVR__ */

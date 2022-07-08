@@ -4,19 +4,18 @@
 #include <fcntl.h>
 #include <string.h>
 #include "lzfx.h"
-#include "lzf.h"
 #include <errno.h>
 
 const char* syntax = "Syntax is 'util in out c|d'\n";
 
 typedef enum { compress, decompress } lzmode_t;
-typedef unsigned char u8;
-typedef int (*lzfx_fn)(const void* ibuf, unsigned int ilen, void* obuf, unsigned int* olen);
 
-int lzf_proxy_comp(const void* ibuf, unsigned int ilen, void* obuf, unsigned int* olen) {
-    unsigned int rc;
+typedef int_t (*lzfx_fn)(const void* ibuf, uint_t ilen, void* obuf, uint_t* olen);
 
-    rc = lzf_compress(ibuf, ilen, obuf, *olen);
+int_t lzf_proxy_comp(const void* ibuf, uint_t ilen, void* obuf, uint_t* olen) {
+    uint_t rc;
+
+    rc = lzfx_compress(ibuf, ilen, obuf, olen);
     if (rc == 0) {
         return LZFX_ESIZE;
     }
@@ -25,10 +24,10 @@ int lzf_proxy_comp(const void* ibuf, unsigned int ilen, void* obuf, unsigned int
     return 0;
 }
 
-int lzf_proxy_decomp(const void* ibuf, unsigned int ilen, void* obuf, unsigned int* olen) {
-    unsigned int rc;
+int_t lzf_proxy_decomp(const void* ibuf, uint_t ilen, void* obuf, uint_t* olen) {
+    uint_t rc;
 
-    rc = lzf_decompress(ibuf, ilen, obuf, *olen);
+    rc = lzfx_decompress(ibuf, ilen, obuf, olen);
     if (rc == 0) {
         if (errno == EINVAL) {
             return LZFX_ECORRUPT;
@@ -53,24 +52,24 @@ int lzf_proxy_decomp(const void* ibuf, unsigned int ilen, void* obuf, unsigned i
     Returns:    0   No failure
                 1   Failure
 */
-int test_bounds(const void* ibuf, unsigned int ilen, lzfx_fn compressor, lzfx_fn decompressor) {
-    unsigned int real_length;
-    u8*          comparison_buffer;
+int_t test_bounds(const void* ibuf, uint_t ilen, lzfx_fn compressor, lzfx_fn decompressor) {
+    uint_t   real_length;
+    uint8_t* comparison_buffer;
 
-    u8* compressed_buffer;
-    u8* plaintext_buffer;
+    uint8_t* compressed_buffer;
+    uint8_t* plaintext_buffer;
 
-    unsigned int compressed_length;
-    unsigned int plaintext_length;
-    unsigned int size_after_compression;
+    uint_t compressed_length;
+    uint_t plaintext_length;
+    uint_t size_after_compression;
 
-    int rc;
-    int frc = 0;
+    int_t rc;
+    int_t frc = 0;
 
     real_length       = ((int)(ilen * 1.05) == ilen ? ilen + 20 : (int)ilen * 1.05) + GUARD_BYTES;
-    comparison_buffer = (u8*)malloc(real_length);
-    compressed_buffer = (u8*)malloc(real_length);
-    plaintext_buffer  = (u8*)malloc(real_length);
+    comparison_buffer = (uint8_t*)malloc(real_length);
+    compressed_buffer = (uint8_t*)malloc(real_length);
+    plaintext_buffer  = (uint8_t*)malloc(real_length);
 
     memset(comparison_buffer, MAGIC_VAL, real_length);
 
@@ -133,20 +132,20 @@ out:
 }
 
 /*  Test round-trip.  1 on failure, 0 on no failure. */
-int test_round(const void* ibuf, unsigned int ilen, lzfx_fn compressor, lzfx_fn decompressor) {
-    u8*          compressed_buffer = NULL;
-    unsigned int compressed_length;
-    u8*          plaintext_buffer = NULL;
-    unsigned int plaintext_length;
+int_t test_round(const void* ibuf, uint_t ilen, lzfx_fn compressor, lzfx_fn decompressor) {
+    uint8_t* compressed_buffer = NULL;
+    uint_t   compressed_length;
+    uint8_t* plaintext_buffer = NULL;
+    uint_t   plaintext_length;
 
-    int rc;
-    int frc = 0;
+    int_t rc;
+    int_t frc = 0;
 
     compressed_length = (int)(ilen * 1.05) + 16;
-    compressed_buffer = (u8*)malloc(compressed_length);
+    compressed_buffer = (uint8_t*)malloc(compressed_length);
 
     plaintext_length = ilen;
-    plaintext_buffer = (u8*)malloc(plaintext_length);
+    plaintext_buffer = (uint8_t*)malloc(plaintext_length);
 
     rc = compressor(ibuf, ilen, compressed_buffer, &compressed_length);
     if (rc < 0) {
@@ -174,9 +173,9 @@ out:
 
     Return is # of failed tests.
 */
-int perform_tests(const void* ibuf, unsigned int ilen, const char* fname) {
-    int nfailed = 0;
-    int rc      = 0;
+int_t perform_tests(const void* ibuf, uint_t ilen, const char* fname) {
+    int_t nfailed = 0;
+    int_t rc      = 0;
 
 #define DO_TEST(exp, msg)                                            \
     {                                                                \
@@ -204,6 +203,7 @@ int perform_tests(const void* ibuf, unsigned int ilen, const char* fname) {
     return nfailed;
 }
 
+#ifndef __AVR__
 /*  Run compression tests on input data chunk
 
     <imagename> file1 file2 ... filen
@@ -213,16 +213,16 @@ int perform_tests(const void* ibuf, unsigned int ilen, const char* fname) {
                  2  Test failure
 */
 int main(int argc, char* argv[]) {
-    int          fd;
-    u8*          ibuf = NULL;
-    unsigned int ilen = 0;
+    int_t    fd;
+    uint8_t* ibuf = NULL;
+    uint_t   ilen = 0;
 
     ssize_t rc;
     ssize_t amt_read = 0;
-    int     nblocks  = 0;
+    int_t   nblocks  = 0;
 
-    int argidx;
-    int nfailed = 0;
+    int_t argidx;
+    int_t nfailed = 0;
 
     if (argc < 2) {
         fprintf(stderr, "Syntax is \"test file1 file2 ... fileN\"\n");
@@ -269,3 +269,4 @@ int main(int argc, char* argv[]) {
 
     return !!nfailed;
 }
+#endif /* __AVR__ */

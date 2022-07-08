@@ -31,13 +31,14 @@
  * ERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+#include <stdint.h>
 
 #ifndef LZFX_H
-#define LZFX_H
+#    define LZFX_H
 
-#ifdef __cplusplus
+#    ifdef __cplusplus
 extern "C" {
-#endif
+#    endif
 
 /*  Documented behavior, including function signatures and error codes,
     is guaranteed to remain unchanged for releases with the same major
@@ -45,29 +46,36 @@ extern "C" {
     to read each other's output, although the output itself is not
     guaranteed to be byte-for-byte identical.
 */
-#define LZFX_VERSION_MAJOR 0
-#define LZFX_VERSION_MINOR 1
-#define LZFX_VERSION_STRING "0.1"
+#    define LZFX_VERSION_MAJOR 0
+#    define LZFX_VERSION_MINOR 1
+#    define LZFX_VERSION_STRING "0.1"
 
-#ifdef __AVR__
-typedef uint8_t u8;
-typedef int_fast8_t int_t;
-typedef uint_fast8_t uint_t;
-#else
-typedef unsigned char u8;
-typedef int int_t;
-typedef uint_t uint_t;
-#endif
+#    ifdef __AVR__
+typedef int_fast8_t   int_t;
+typedef uint_fast8_t  uint_t;
+typedef int_fast16_t  long_t;
+typedef uint_fast16_t ulong_t;
+typedef int_t         ssize_t;
+#    else
+typedef unsigned char uint8_t;
+typedef int           int_t;
+typedef unsigned int  uint_t;
+typedef long          long_t;
+typedef unsigned long ulong_t;
+#    endif
 
 /* Hashtable size (2**LZFX_HLOG entries) */
-#ifndef LZFX_HLOG
-#    define LZFX_HLOG 16
-#endif
+#    ifndef LZFX_HLOG
+#        define LZFX_HLOG 16
+#        define LZFX_HSIZE 32
+#    endif
+
+typedef const uint8_t* LZSTATE[LZFX_HSIZE];
 
 /* Predefined errors. */
-#define LZFX_ESIZE -1    /* Output buffer too small */
-#define LZFX_ECORRUPT -2 /* Invalid data for decompression */
-#define LZFX_EARGS -3    /* Arguments invalid (NULL) */
+#    define LZFX_ESIZE -1    /* Output buffer too small */
+#    define LZFX_ECORRUPT -2 /* Invalid data for decompression */
+#    define LZFX_EARGS -3    /* Arguments invalid (NULL) */
 
 /*  Buffer-to buffer compression.
 
@@ -99,8 +107,8 @@ int_t lzfx_compress(const void* ibuf, uint_t ilen, void* obuf, uint_t* olen);
 */
 int_t lzfx_decompress(const void* ibuf, uint_t ilen, void* obuf, uint_t* olen);
 
-#ifdef __cplusplus
+#    ifdef __cplusplus
 } /* extern "C" */
-#endif
+#    endif
 
 #endif
