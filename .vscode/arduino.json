@@ -1,0 +1,6 @@
+{
+    "board": "arduino:avr:leonardo",
+    "sketch": "lzfx_test.ino",
+    "port": "COM3",
+    "programmer": "arduino:avrispmkii"
+}

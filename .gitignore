@@ -8,6 +8,8 @@
 *.map
 *.sym
 *.o
+*.a
+*.exe
 
 /autom4te.cache
 /Makefile

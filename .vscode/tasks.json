@@ -1,0 +1,34 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "cppbuild",
+			"label": "C/C++: avr-g++.exe build active file",
+			"command": "C:/Tools/Scoop/apps/arduino/current/hardware/tools/avr/bin/avr-g++.exe",
+			"args": [
+				"-fdiagnostics-color=always",
+				"-g",
+                "-I",
+                ".",
+                "-I",
+                "C:/Tools/Scoop/apps/arduino/current/hardware/arduino/avr/cores/arduino",
+                "-I",
+                "C:/Tools/Scoop/apps/arduino/current/hardware/arduino/avr/variants/leonardo",
+				"${file}",
+				"-o",
+				"${fileDirname}\\${fileBasenameNoExtension}.o"
+			],
+			"options": {
+				"cwd": "C:/Tools/Scoop/apps/arduino/current/hardware/tools/avr/bin"
+			},
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"detail": "compiler: C:/Tools/Scoop/apps/arduino/current/hardware/tools/avr/bin/avr-g++.exe"
+		}
+	]
+}

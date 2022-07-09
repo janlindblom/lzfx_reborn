@@ -54,6 +54,27 @@
             "cStandard": "gnu99",
             "cppStandard": "gnu++98",
             "intelliSenseMode": "linux-gcc-arm"
+        },
+        {
+            "name": "Arduino Leonardo CPP",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:/Tools/Scoop/apps/arduino/current/hardware/arduino/avr/cores/arduino/**",
+                "C:/Tools/Scoop/apps/arduino/current/hardware/arduino/avr/variants/leonardo/**"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE",
+                "__AVR__",
+                "ARDUINO",
+                "__cplusplus"
+            ],
+            "compilerPath": "C:/Tools/Scoop/apps/arduino/current/hardware/tools/avr/bin/avr-g++.exe",
+            "cStandard": "c99",
+            "cppStandard": "gnu++98",
+            "intelliSenseMode": "gcc-arm",
+            "configurationProvider": "ms-vscode.makefile-tools"
         }
     ],
     "version": 4

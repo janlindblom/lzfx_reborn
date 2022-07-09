@@ -1,13 +1,14 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <string.h>
-#include "lzfx.h"
-#include <errno.h>
-#include <stdint.h>
+#if !defined(__cplusplus) && !defined(ARDUINO)
+#    include <stdlib.h>
+#    include <stdio.h>
+#    include <unistd.h>
+#    include <fcntl.h>
+#    include <string.h>
+#    include "lzfx.h"
+#    include <errno.h>
+#    include <stdint.h>
 
-#define BLOCKSIZE (1024 * 1024)
+#    define BLOCKSIZE (1024 * 1024)
 
 typedef enum { MODE_COMPRESS, MODE_DECOMPRESS } fx_mode_t;
 
@@ -363,7 +364,7 @@ int fx_read(const FX_STATE state) {
     return 0;
 }
 
-#ifndef __AVR__
+#    ifndef __AVR__
 int main(int argc, char* argv[]) {
     int_t     rc;
     int_t     ifd, ofd;
@@ -416,4 +417,5 @@ int main(int argc, char* argv[]) {
 
     return rc ? 1 : 0;
 }
-#endif /* __AVR__ */
+#    endif /* __AVR__ */
+#endif

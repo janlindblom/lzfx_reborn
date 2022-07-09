@@ -31,14 +31,22 @@
  * ERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
  * OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-#include <stdint.h>
 
 #ifndef LZFX_H
-#    define LZFX_H
+#define LZFX_H
 
-#    ifdef __cplusplus
+#ifdef __cplusplus
+#    ifndef ARDUINO
+#        include <cstdint>
+#        include <cstring> /* We need this for memset */
 extern "C" {
-#    endif
+#    else /* !ARDUINO */
+#        include <Arduino.h>
+#    endif /* ARDUINO */
+#else
+#    include <stdint.h>
+#    include <string.h> /* We need this for memset */
+#endif                  /* __cplusplus */
 
 /*  Documented behavior, including function signatures and error codes,
     is guaranteed to remain unchanged for releases with the same major
@@ -46,36 +54,36 @@ extern "C" {
     to read each other's output, although the output itself is not
     guaranteed to be byte-for-byte identical.
 */
-#    define LZFX_VERSION_MAJOR 0
-#    define LZFX_VERSION_MINOR 1
-#    define LZFX_VERSION_STRING "0.1"
+#define LZFX_VERSION_MAJOR 0
+#define LZFX_VERSION_MINOR 1
+#define LZFX_VERSION_STRING "0.1"
 
-#    ifdef __AVR__
+#if defined(__AVR__) && !defined(ARDUINO)
 typedef int_fast8_t   int_t;
 typedef uint_fast8_t  uint_t;
 typedef int_fast16_t  long_t;
 typedef uint_fast16_t ulong_t;
 typedef int_t         ssize_t;
-#    else
+#else
 typedef unsigned char uint8_t;
 typedef int           int_t;
 typedef unsigned int  uint_t;
 typedef long          long_t;
 typedef unsigned long ulong_t;
-#    endif
+#endif /* __AVR__ && !ARDUINO */
 
 /* Hashtable size (2**LZFX_HLOG entries) */
-#    ifndef LZFX_HLOG
-#        define LZFX_HLOG 16
-#        define LZFX_HSIZE 32
-#    endif
+#ifndef LZFX_HLOG
+#    define LZFX_HLOG 16
+#    define LZFX_HSIZE 32
+#endif
 
 typedef const uint8_t* LZSTATE[LZFX_HSIZE];
 
 /* Predefined errors. */
-#    define LZFX_ESIZE -1    /* Output buffer too small */
-#    define LZFX_ECORRUPT -2 /* Invalid data for decompression */
-#    define LZFX_EARGS -3    /* Arguments invalid (NULL) */
+#define LZFX_ESIZE -1    /* Output buffer too small */
+#define LZFX_ECORRUPT -2 /* Invalid data for decompression */
+#define LZFX_EARGS -3    /* Arguments invalid (NULL) */
 
 /*  Buffer-to buffer compression.
 
@@ -107,8 +115,15 @@ int_t lzfx_compress(const void* ibuf, uint_t ilen, void* obuf, uint_t* olen);
 */
 int_t lzfx_decompress(const void* ibuf, uint_t ilen, void* obuf, uint_t* olen);
 
-#    ifdef __cplusplus
+#if defined(__cplusplus) && !defined(ARDUINO)
 } /* extern "C" */
-#    endif
+#endif /* __cplusplus && !ARDUINO */
 
-#endif
+#if defined(ARDUINO) && defined(__cplusplus)
+class LZFX {
+   public:
+    int compress(const void* ibuf, unsigned int ilen, void* obuf, unsigned int* olen);
+    int decompress(const void* ibuf, unsigned int ilen, void* obuf, unsigned int* olen);
+};
+#endif /* ARDUINO && __cplusplus */
+#endif /* LZFX_H */

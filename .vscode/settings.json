@@ -1,0 +1,24 @@
+{
+    "files.associations": {
+        "*.h": "cpp",
+        "*.ino": "cpp"
+    },
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/*.eep": true,
+        "**/*.elf": true,
+        "**/*.hex": true,
+        "**/*.lss": true,
+        "**/*.map": true,
+        "**/*.sym": true,
+        "**/*.o": true
+    },
+    "arduino.enableUSBDetection": true,
+    "arduino.analyzeOnSettingChange": true,
+    "arduino.analyzeOnOpen": true
+}
